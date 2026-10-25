@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#30204b"/><stop offset=".55" stop-color="#1a1b32"/><stop offset="1" stop-color="#111722"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb1cf"/><stop offset="1" stop-color="#9f8bff"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="28" fill="url(#bg)"/>
+  <circle cx="1010" cy="110" r="240" fill="#bd8cff" opacity=".11"/>
+  <rect x="70" y="53" width="1060" height="567" rx="20" fill="#11141f" stroke="#403654" stroke-width="2"/>
+  <rect x="70" y="53" width="1060" height="61" rx="20" fill="#1a1827"/>
+  <circle cx="105" cy="84" r="7" fill="#ef8588"/><circle cx="129" cy="84" r="7" fill="#e3bd72"/><circle cx="153" cy="84" r="7" fill="#70c99b"/>
+  <circle cx="199" cy="83" r="15" fill="url(#accent)"/><path d="M193 83h12M199 77v12" stroke="#392b55" stroke-width="2" stroke-linecap="round"/>
+  <text x="225" y="91" fill="#eee9f8" font-family="Arial,sans-serif" font-size="18" font-weight="700">orbit / support copilot</text>
+  <rect x="96" y="136" width="225" height="455" rx="12" fill="#171825"/>
+  <text x="120" y="176" fill="#a8a0bd" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.4">SUPPORT INBOX</text>
+  <rect x="112" y="194" width="193" height="75" rx="9" fill="#29243a"/><circle cx="137" cy="221" r="13" fill="#7862a5"/><text x="160" y="219" fill="#ede7f6" font-family="Arial,sans-serif" font-size="13" font-weight="700">Maya Chen</text><text x="160" y="241" fill="#b6aec5" font-family="Arial,sans-serif" font-size="12">Order delivery question</text><circle cx="286" cy="211" r="4" fill="#ffb7d5"/>
+  <circle cx="137" cy="300" r="13" fill="#507e87"/><text x="160" y="298" fill="#d8d7e2" font-family="Arial,sans-serif" font-size="13">Daniel Ruiz</text><text x="160" y="320" fill="#8e91a6" font-family="Arial,sans-serif" font-size="12">Update billing details</text>
+  <circle cx="137" cy="368" r="13" fill="#806257"/><text x="160" y="366" fill="#d8d7e2" font-family="Arial,sans-serif" font-size="13">Priya Shah</text><text x="160" y="388" fill="#8e91a6" font-family="Arial,sans-serif" font-size="12">Reset my password</text>
+  <text x="120" y="450" fill="#8b879a" font-family="Arial,sans-serif" font-size="12">YOUR TEAM</text><circle cx="133" cy="478" r="5" fill="#79d3aa"/><text x="150" y="483" fill="#aaa7b8" font-family="Arial,sans-serif" font-size="13">A. Sharma · online</text>
+  <text x="352" y="157" fill="#edeaf4" font-family="Arial,sans-serif" font-size="21" font-weight="700">Order delivery question</text><text x="352" y="182" fill="#86869c" font-family="Arial,sans-serif" font-size="13">Maya Chen · Customer since March 2025</text>
+  <rect x="352" y="207" width="446" height="94" rx="11" fill="#1c1d2b"/><text x="374" y="237" fill="#d7d5e0" font-family="Arial,sans-serif" font-size="14">Hi, I placed an order last week but haven't</text><text x="374" y="260" fill="#d7d5e0" font-family="Arial,sans-serif" font-size="14">received a shipping update yet. Could you</text><text x="374" y="283" fill="#d7d5e0" font-family="Arial,sans-serif" font-size="14">help me check the status?</text>
+  <rect x="352" y="321" width="446" height="205" rx="12" fill="#252034" stroke="#574675"/><circle cx="377" cy="348" r="10" fill="url(#accent)"/><text x="397" y="353" fill="#e1d3ff" font-family="Arial,sans-serif" font-size="13" font-weight="700">COPILOT DRAFT · REVIEW BEFORE SENDING</text>
+  <text x="374" y="389" fill="#d8d2e4" font-family="Arial,sans-serif" font-size="14">Thanks for reaching out, Maya. I found your</text><text x="374" y="412" fill="#d8d2e4" font-family="Arial,sans-serif" font-size="14">order #4821. It's being prepared and is</text><text x="374" y="435" fill="#d8d2e4" font-family="Arial,sans-serif" font-size="14">expected to ship tomorrow. I'll share the</text><text x="374" y="458" fill="#d8d2e4" font-family="Arial,sans-serif" font-size="14">tracking link as soon as it's available.</text>
+  <rect x="374" y="478" width="112" height="30" rx="15" fill="#c3a8fa"/><text x="397" y="498" fill="#29203c" font-family="Arial,sans-serif" font-size="12" font-weight="700">Use draft</text>
+  <rect x="826" y="207" width="274" height="319" rx="12" fill="#171925" stroke="#302c40"/><text x="848" y="242" fill="#e4dff0" font-family="Arial,sans-serif" font-size="15" font-weight="700">Suggested sources</text>
+  <rect x="844" y="261" width="238" height="83" rx="9" fill="#211f30"/><text x="861" y="288" fill="#cdb9f4" font-family="Arial,sans-serif" font-size="12" font-weight="700">SHIPPING POLICY</text><text x="861" y="311" fill="#a6a1b4" font-family="Arial,sans-serif" font-size="12">Orders usually ship within 3-5</text><text x="861" y="329" fill="#a6a1b4" font-family="Arial,sans-serif" font-size="12">business days.</text>
+  <rect x="844" y="357" width="238" height="83" rx="9" fill="#211f30"/><text x="861" y="384" fill="#cdb9f4" font-family="Arial,sans-serif" font-size="12" font-weight="700">ORDER #4821</text><text x="861" y="407" fill="#a6a1b4" font-family="Arial,sans-serif" font-size="12">Status: preparing to ship</text><text x="861" y="425" fill="#a6a1b4" font-family="Arial,sans-serif" font-size="12">Last updated 2 hours ago</text>
+  <rect x="352" y="548" width="748" height="38" rx="10" fill="#1a1b29" stroke="#373347"/><text x="374" y="572" fill="#77798e" font-family="Arial,sans-serif" font-size="13">Write a reply or ask the copilot...</text>
+</svg>

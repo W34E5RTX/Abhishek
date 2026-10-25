@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#17243d"/><stop offset="1" stop-color="#111724"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7ce0d1"/><stop offset="1" stop-color="#638bf3"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="28" fill="url(#bg)"/>
+  <circle cx="1050" cy="120" r="245" fill="#6488ef" opacity=".1"/>
+  <rect x="70" y="54" width="1060" height="566" rx="20" fill="#10151f" stroke="#334155" stroke-width="2"/>
+  <rect x="70" y="54" width="1060" height="61" rx="20" fill="#161e2c"/>
+  <circle cx="105" cy="85" r="7" fill="#ef8588"/><circle cx="129" cy="85" r="7" fill="#e3bd72"/><circle cx="153" cy="85" r="7" fill="#70c99b"/>
+  <text x="194" y="94" fill="#e5edf7" font-family="Arial,sans-serif" font-size="19" font-weight="700">relay / API control plane</text>
+  <rect x="938" y="70" width="158" height="30" rx="15" fill="#18352e"/><circle cx="958" cy="85" r="6" fill="#63d49e"/><text x="972" y="91" fill="#9ce1bb" font-family="Arial,sans-serif" font-size="13">All systems operational</text>
+  <rect x="96" y="139" width="238" height="452" rx="12" fill="#151c29"/>
+  <text x="122" y="180" fill="#75839a" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">WORKSPACE</text>
+  <rect x="113" y="199" width="204" height="42" rx="8" fill="#26334a"/><text x="142" y="226" fill="#e3ebf7" font-family="Arial,sans-serif" font-size="15">Overview</text>
+  <text x="142" y="278" fill="#9aa7b8" font-family="Arial,sans-serif" font-size="15">API endpoints</text><text x="142" y="325" fill="#9aa7b8" font-family="Arial,sans-serif" font-size="15">Service health</text><text x="142" y="372" fill="#9aa7b8" font-family="Arial,sans-serif" font-size="15">Access keys</text><text x="142" y="419" fill="#9aa7b8" font-family="Arial,sans-serif" font-size="15">Activity logs</text>
+  <text x="375" y="171" fill="#edf3fb" font-family="Arial,sans-serif" font-size="26" font-weight="700">API overview</text><text x="375" y="199" fill="#8e9bb0" font-family="Arial,sans-serif" font-size="14">Monitor routes, requests, and service status.</text>
+  <rect x="375" y="224" width="207" height="102" rx="11" fill="#192231" stroke="#2e3b4f"/><text x="396" y="255" fill="#98a5b7" font-family="Arial,sans-serif" font-size="13">REQUESTS (24H)</text><text x="396" y="298" fill="#e6edf8" font-family="Arial,sans-serif" font-size="29" font-weight="700">128,430</text>
+  <rect x="598" y="224" width="207" height="102" rx="11" fill="#192231" stroke="#2e3b4f"/><text x="619" y="255" fill="#98a5b7" font-family="Arial,sans-serif" font-size="13">AVG. LATENCY</text><text x="619" y="298" fill="#e6edf8" font-family="Arial,sans-serif" font-size="29" font-weight="700">82 ms</text>
+  <rect x="821" y="224" width="267" height="102" rx="11" fill="#192231" stroke="#2e3b4f"/><text x="842" y="255" fill="#98a5b7" font-family="Arial,sans-serif" font-size="13">SUCCESS RATE</text><text x="842" y="298" fill="#84e0b5" font-family="Arial,sans-serif" font-size="29" font-weight="700">99.98%</text>
+  <rect x="375" y="350" width="713" height="215" rx="12" fill="#151c28" stroke="#2c3749"/><text x="399" y="383" fill="#dce5f1" font-family="Arial,sans-serif" font-size="17" font-weight="700">Request volume</text><text x="399" y="406" fill="#7f8ca0" font-family="Arial,sans-serif" font-size="12">Last 24 hours</text>
+  <path d="M402 518h649M402 479h649M402 440h649" stroke="#293344" stroke-dasharray="4 6"/>
+  <path d="M402 500l56-17 52 8 56-42 55 14 55-29 54 18 55-44 54 20 55-29 53 12 55-33 56 18" stroke="url(#accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="957" cy="427" r="6" fill="#7ce0d1" stroke="#10151f" stroke-width="4"/>
+  <rect x="897" y="402" width="121" height="34" rx="7" fill="#243447" stroke="#4b607b"/><text x="912" y="424" fill="#e3eefb" font-family="Arial,sans-serif" font-size="12">12:40 · 8.2k</text>
+</svg>

@@ -1,0 +1,534 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+}
+
+enum AccountTokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum BookingStatus {
+  NEW_INQUIRY
+  UNDER_REVIEW
+  REQUIREMENTS_DISCUSSION
+  PROPOSAL_SENT
+  AWAITING_APPROVAL
+  AWAITING_PAYMENT
+  CONFIRMED
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  REFUNDED
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+}
+
+model User {
+  id              String          @id @default(cuid()) @map("_id")
+  email           String          @unique
+  passwordHash    String
+  role            UserRole        @default(CLIENT)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  profile         UserProfile?
+  sessions        Session[]
+  accountTokens   AccountToken[]
+  bookings        Booking[]
+  proposals       Proposal[]      @relation("ProposalClient")
+  projects        ClientProject[]
+  orders          Order[]
+  downloadGrants  DownloadGrant[]
+  cart            Cart?
+  testimonials    Testimonial[]
+}
+
+model UserProfile {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @unique
+  fullName  String?
+  phone     String?
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        String   @id @default(cuid()) @map("_id")
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model AccountToken {
+  id        String              @id @default(cuid()) @map("_id")
+  userId    String
+  tokenHash String              @unique
+  purpose   AccountTokenPurpose
+  expiresAt DateTime
+  createdAt DateTime            @default(now())
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, expiresAt])
+}
+
+model ProjectCategory {
+  id       String    @id @default(cuid()) @map("_id")
+  slug     String    @unique
+  name     String    @unique
+  projects Project[]
+}
+
+model Project {
+  id              String              @id @default(cuid()) @map("_id")
+  slug            String              @unique
+  title           String
+  description     String
+  categoryId      String
+  coverImage      String?
+  liveUrl         String?
+  githubUrl       String?
+  details         Json?
+  status          PublishStatus       @default(DRAFT)
+  featured        Boolean             @default(false)
+  sortOrder       Int                 @default(0)
+  sampleRecord    Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  technologies    ProjectTechnology[]
+  projectCategory ProjectCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  clientProjects  ClientProject[]
+
+  @@index([status, featured, sortOrder])
+}
+
+model ProjectTechnology {
+  id        String  @id @default(cuid()) @map("_id")
+  projectId String
+  name      String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+}
+
+model ServiceCategory {
+  id       String    @id @default(cuid()) @map("_id")
+  slug     String    @unique
+  name     String    @unique
+  services Service[]
+}
+
+model Service {
+  id              String          @id @default(cuid()) @map("_id")
+  slug            String          @unique
+  title           String
+  description     String
+  categoryId      String
+  deliverables    Json
+  requirements    Json?
+  complexity      String?
+  startingPrice   String?
+  currency        String          @default("INR")
+  available       Boolean         @default(true)
+  status          PublishStatus   @default(PUBLISHED)
+  sortOrder       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  bookings        Booking[]
+  serviceCategory ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+}
+
+model Booking {
+  id              String              @id @default(cuid()) @map("_id")
+  reference       String              @unique
+  serviceId       String?
+  serviceName     String
+  clientId        String?
+  name            String
+  email           String
+  phone           String?
+  contactMethod   String              @default("Email")
+  title           String
+  description     String
+  requirements    String?
+  budget          String?
+  timeline        String?
+  status          BookingStatus       @default(NEW_INQUIRY)
+  privacyAccepted Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  service         Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  client          User?               @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  attachments     BookingAttachment[]
+  proposals       Proposal[]
+
+  @@index([status, createdAt])
+  @@index([email, createdAt])
+}
+
+model BookingAttachment {
+  id         String   @id @default(cuid()) @map("_id")
+  bookingId  String
+  storageKey String
+  fileName   String
+  mimeType   String
+  sizeBytes  Int
+  createdAt  DateTime @default(now())
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Proposal {
+  id             String         @id @default(cuid()) @map("_id")
+  reference      String         @unique
+  bookingId      String
+  clientId       String
+  scope          String
+  exclusions     String?
+  revisionPolicy String?
+  terms          String?
+  amount         String
+  taxAmount      String         @default("0")
+  currency       String         @default("INR")
+  timeline       String?
+  validUntil     DateTime?
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  booking        Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  client         User           @relation("ProposalClient", fields: [clientId], references: [id], onDelete: Cascade)
+  items          ProposalItem[]
+  project        ClientProject?
+
+  @@index([clientId, createdAt])
+}
+
+model ProposalItem {
+  id          String   @id @default(cuid()) @map("_id")
+  proposalId  String
+  title       String
+  description String?
+  amount      String
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+}
+
+model ClientProject {
+  id         String             @id @default(cuid()) @map("_id")
+  clientId   String
+  projectId  String?
+  proposalId String?            @unique
+  title      String
+  status     String             @default("CONFIRMED")
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  client     User               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project    Project?           @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  proposal   Proposal?          @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  milestones ProjectMilestone[]
+  updates    ProjectUpdate[]
+
+  @@index([clientId, status])
+}
+
+model ProjectMilestone {
+  id          String          @id @default(cuid()) @map("_id")
+  projectId   String
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      MilestoneStatus @default(NOT_STARTED)
+  amount      String?
+  currency    String          @default("INR")
+  notes       String?
+  sortOrder   Int             @default(0)
+  project     ClientProject   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
+}
+
+model ProjectUpdate {
+  id        String        @id @default(cuid()) @map("_id")
+  projectId String
+  message   String
+  createdAt DateTime      @default(now())
+  project   ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model Product {
+  id              String          @id @default(cuid()) @map("_id")
+  slug            String          @unique
+  title           String
+  description     String
+  categoryId      String
+  coverImage      String?
+  features        Json?
+  requirements    String?
+  installation    String?
+  version         String?
+  license         String?
+  price           String?
+  originalPrice   String?
+  currency        String          @default("INR")
+  status          PublishStatus   @default(DRAFT)
+  sampleRecord    Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  files           ProductFile[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  downloadGrants  DownloadGrant[]
+  productCategory ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  licenseDetails  ProductLicense? @relation(fields: [licenseId], references: [id], onDelete: SetNull)
+  licenseId       String?
+}
+
+model ProductCategory {
+  id       String    @id @default(cuid()) @map("_id")
+  slug     String    @unique
+  name     String    @unique
+  products Product[]
+}
+
+model ProductFile {
+  id         String   @id @default(cuid()) @map("_id")
+  productId  String
+  storageKey String
+  fileName   String
+  mimeType   String
+  sizeBytes  Int
+  isPublic   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductLicense {
+  id          String    @id @default(cuid()) @map("_id")
+  name        String    @unique
+  description String
+  terms       String
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Cart {
+  id        String     @id @default(cuid()) @map("_id")
+  userId    String     @unique
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid()) @map("_id")
+  cartId    String
+  productId String
+  quantity  Int     @default(1)
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id        String      @id @default(cuid()) @map("_id")
+  reference String      @unique
+  userId    String
+  status    String      @default("PENDING")
+  total     String
+  currency  String      @default("INR")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrderItem[]
+  payments  Payment[]
+
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid()) @map("_id")
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  unitPrice String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+model Payment {
+  id                    String                @id @default(cuid()) @map("_id")
+  orderId               String?
+  provider              String
+  providerTransactionId String?               @unique
+  status                PaymentStatus         @default(PENDING)
+  amount                String
+  currency              String                @default("INR")
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  order                 Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  events                PaymentWebhookEvent[]
+
+  @@index([orderId, status])
+}
+
+model PaymentWebhookEvent {
+  id          String    @id @default(cuid()) @map("_id")
+  provider    String
+  eventId     String
+  paymentId   String?
+  eventType   String
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  payment     Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, eventId])
+}
+
+model DownloadGrant {
+  id            String          @id @default(cuid()) @map("_id")
+  userId        String
+  productId     String
+  expiresAt     DateTime?
+  downloadCount Int             @default(0)
+  maxDownloads  Int?
+  createdAt     DateTime        @default(now())
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product       Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  audits        DownloadAudit[]
+
+  @@unique([userId, productId])
+}
+
+model DownloadAudit {
+  id        String        @id @default(cuid()) @map("_id")
+  grantId   String
+  createdAt DateTime      @default(now())
+  grant     DownloadGrant @relation(fields: [grantId], references: [id], onDelete: Cascade)
+
+  @@index([grantId, createdAt])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Testimonial {
+  id        String   @id @default(cuid()) @map("_id")
+  clientId  String?
+  name      String
+  role      String?
+  company   String?
+  quote     String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  client    User?    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([approved, createdAt])
+}
+
+model FAQ {
+  id        String   @id @default(cuid()) @map("_id")
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id               String    @id @default(cuid()) @map("_id")
+  company          String
+  title            String
+  startDate        DateTime?
+  endDate          DateTime?
+  employmentType   String?
+  description      String?
+  responsibilities Json?
+  technologies     Json?
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Education {
+  id             String   @id @default(cuid()) @map("_id")
+  institution    String
+  qualification  String
+  fieldOfStudy   String?
+  startYear      Int?
+  graduationYear Int?
+  description    String?
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Skill {
+  id        String  @id @default(cuid()) @map("_id")
+  name      String
+  category  String
+  label     String?
+  sortOrder Int     @default(0)
+
+  @@unique([name, category])
+}
+
+model SiteSetting {
+  key       String   @id @map("_id")
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid()) @map("_id")
+  actorId    String?
+  action     String
+  resource   String
+  resourceId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([resource, resourceId])
+}

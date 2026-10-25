@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#142e2d"/><stop offset="1" stop-color="#101923"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#68e0b2"/><stop offset="1" stop-color="#80a9fb"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="28" fill="url(#bg)"/>
+  <circle cx="1000" cy="90" r="220" fill="#66e3b7" opacity=".07"/>
+  <rect x="70" y="55" width="1060" height="565" rx="20" fill="#10171d" stroke="#35483f" stroke-width="2"/>
+  <rect x="70" y="55" width="1060" height="62" rx="20" fill="#151f24"/>
+  <circle cx="106" cy="86" r="7" fill="#ee8585"/><circle cx="130" cy="86" r="7" fill="#dfba73"/><circle cx="154" cy="86" r="7" fill="#74c89c"/>
+  <text x="198" y="96" fill="#d8eee3" font-family="Arial,sans-serif" font-size="19" font-weight="700">finova</text>
+  <rect x="895" y="72" width="190" height="31" rx="15" fill="#1b2929"/><circle cx="917" cy="88" r="7" fill="#76dcaf"/><text x="932" y="94" fill="#a8c8b7" font-family="Arial,sans-serif" font-size="13">All accounts connected</text>
+  <text x="112" y="164" fill="#e8f3ed" font-family="Arial,sans-serif" font-size="25" font-weight="700">Good morning, Alex</text><text x="112" y="191" fill="#8da39a" font-family="Arial,sans-serif" font-size="14">Here is your money at a glance.</text>
+  <rect x="110" y="220" width="443" height="154" rx="14" fill="#182521" stroke="#34473d"/><text x="136" y="255" fill="#9fb0a5" font-family="Arial,sans-serif" font-size="14">TOTAL BALANCE</text><text x="136" y="309" fill="#f1f7f3" font-family="Arial,sans-serif" font-size="39" font-weight="700">$24,680.50</text><text x="136" y="346" fill="#72d4a8" font-family="Arial,sans-serif" font-size="15">↑ 8.2% this month</text>
+  <rect x="576" y="220" width="514" height="154" rx="14" fill="#182521" stroke="#34473d"/><text x="603" y="255" fill="#9fb0a5" font-family="Arial,sans-serif" font-size="14">SPENDING THIS MONTH</text><text x="603" y="293" fill="#f1f7f3" font-family="Arial,sans-serif" font-size="23" font-weight="700">$3,420</text><path d="M603 347l55-22 54 11 58-46 51 16 64-61 53 31 61-42 66 22" stroke="url(#line)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M603 347l55-22 54 11 58-46 51 16 64-61 53 31 61-42 66 22v52H603z" fill="#67d6ab" fill-opacity=".08"/>
+  <text x="112" y="421" fill="#e4eee8" font-family="Arial,sans-serif" font-size="18" font-weight="700">Recent activity</text>
+  <rect x="110" y="442" width="980" height="54" rx="9" fill="#18211f"/><circle cx="141" cy="469" r="14" fill="#293a32"/><text x="134" y="475" fill="#8ce0b9" font-family="Arial,sans-serif" font-size="16">↗</text><text x="172" y="465" fill="#d6e2da" font-family="Arial,sans-serif" font-size="15">Monthly salary</text><text x="172" y="485" fill="#82958b" font-family="Arial,sans-serif" font-size="12">Today · Income</text><text x="1000" y="476" fill="#7ddbb0" font-family="Arial,sans-serif" font-size="16" text-anchor="end">+$4,800.00</text>
+  <rect x="110" y="508" width="980" height="54" rx="9" fill="#18211f"/><circle cx="141" cy="535" r="14" fill="#3a3026"/><text x="134" y="541" fill="#f1b879" font-family="Arial,sans-serif" font-size="16">↘</text><text x="172" y="531" fill="#d6e2da" font-family="Arial,sans-serif" font-size="15">Home &amp; utilities</text><text x="172" y="551" fill="#82958b" font-family="Arial,sans-serif" font-size="12">Yesterday · Bills</text><text x="1000" y="542" fill="#e4b489" font-family="Arial,sans-serif" font-size="16" text-anchor="end">−$860.00</text>
+</svg>

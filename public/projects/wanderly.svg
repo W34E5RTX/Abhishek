@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#17404a"/><stop offset="1" stop-color="#152431"/></linearGradient><linearGradient id="coast" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6c889"/><stop offset="1" stop-color="#6e9a78"/></linearGradient></defs>
+  <rect width="1200" height="675" rx="28" fill="url(#bg)"/><circle cx="1030" cy="95" r="230" fill="#f0d38c" opacity=".09"/>
+  <rect x="70" y="54" width="1060" height="567" rx="20" fill="#102029" stroke="#36505a" stroke-width="2"/><rect x="70" y="54" width="1060" height="61" rx="20" fill="#192b33"/>
+  <circle cx="105" cy="85" r="7" fill="#ef8588"/><circle cx="129" cy="85" r="7" fill="#e3bd72"/><circle cx="153" cy="85" r="7" fill="#70c99b"/><text x="195" y="94" fill="#edf1e9" font-family="Arial,sans-serif" font-size="18" font-weight="700">wanderly</text>
+  <text x="108" y="158" fill="#f0f1e9" font-family="Arial,sans-serif" font-size="26" font-weight="700">Your next little escape</text><text x="108" y="184" fill="#9eb0aa" font-family="Arial,sans-serif" font-size="13">A weekend in the coast · 3 days · 2 travelers</text>
+  <rect x="108" y="206" width="681" height="337" rx="12" fill="#253e45"/>
+  <path d="M109 286c91 28 145 53 202 36 79-24 112-72 182-58 64 13 95 68 158 58 53-9 94-49 138-20v241H109V286z" fill="#315b5a"/>
+  <path d="M109 352c68-7 122-49 179-26 52 21 59 68 116 74 53 5 88-50 136-42 67 12 84 73 154 68 40-3 67-27 95-17v134H109V352z" fill="url(#coast)"/>
+  <path d="M109 450c78-40 138-23 192 8 67 38 120 36 178-1 59-37 110-33 169 0 51 28 91 28 141 3v83H109v-93z" fill="#748c64"/>
+  <path d="M161 483c82-53 134-47 190-12 62 38 103 34 158-10 63-50 122-42 187 0" stroke="#f0dfaa" stroke-width="5" stroke-dasharray="10 10" stroke-linecap="round"/>
+  <path d="M242 388c0-20 16-36 36-36s36 16 36 36c0 27-36 56-36 56s-36-29-36-56z" fill="#ed987a"/><circle cx="278" cy="387" r="11" fill="#fff0d9"/><path d="M529 332c0-20 16-36 36-36s36 16 36 36c0 27-36 56-36 56s-36-29-36-56z" fill="#f0cf7f"/><circle cx="565" cy="331" r="11" fill="#fff5d7"/>
+  <rect x="813" y="206" width="275" height="337" rx="12" fill="#192a32" stroke="#334951"/><text x="837" y="243" fill="#e8efe8" font-family="Arial,sans-serif" font-size="15" font-weight="700">Your itinerary</text>
+  <circle cx="849" cy="283" r="14" fill="#ed987a"/><text x="876" y="280" fill="#dce6de" font-family="Arial,sans-serif" font-size="13" font-weight="700">Day 1 · Arrival</text><text x="876" y="299" fill="#8fa39c" font-family="Arial,sans-serif" font-size="11">Check in · sunset walk</text>
+  <path d="M849 299v38" stroke="#455d5d" stroke-width="2" stroke-dasharray="3 4"/><circle cx="849" cy="355" r="14" fill="#f0cf7f"/><text x="876" y="352" fill="#dce6de" font-family="Arial,sans-serif" font-size="13" font-weight="700">Day 2 · Explore</text><text x="876" y="371" fill="#8fa39c" font-family="Arial,sans-serif" font-size="11">Old town · coastal trail</text>
+  <path d="M849 371v38" stroke="#455d5d" stroke-width="2" stroke-dasharray="3 4"/><circle cx="849" cy="427" r="14" fill="#81c7b1"/><text x="876" y="424" fill="#dce6de" font-family="Arial,sans-serif" font-size="13" font-weight="700">Day 3 · Slow morning</text><text x="876" y="443" fill="#8fa39c" font-family="Arial,sans-serif" font-size="11">Local market · head home</text>
+  <rect x="837" y="476" width="226" height="43" rx="9" fill="#29443f"/><text x="862" y="503" fill="#d7e8d4" font-family="Arial,sans-serif" font-size="12">Share this trip  ↗</text>
+  <text x="108" y="585" fill="#79928f" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">TRAVEL PLANNING CONCEPT · SAMPLE DESTINATION</text>
+</svg>

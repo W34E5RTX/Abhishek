@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#132b35"/><stop offset="1" stop-color="#111821"/></linearGradient>
+    <linearGradient id="item1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#92bca9"/><stop offset="1" stop-color="#497b75"/></linearGradient>
+    <linearGradient id="item2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dfad81"/><stop offset="1" stop-color="#9f6954"/></linearGradient>
+    <linearGradient id="item3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b7acd8"/><stop offset="1" stop-color="#6b698f"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="28" fill="url(#bg)"/>
+  <circle cx="1050" cy="560" r="240" fill="#5ca497" opacity=".10"/>
+  <rect x="70" y="55" width="1060" height="565" rx="20" fill="#f5f1e9"/>
+  <rect x="70" y="55" width="1060" height="65" rx="20" fill="#fffdf8"/>
+  <text x="112" y="98" fill="#203b36" font-family="Arial,sans-serif" font-size="23" font-weight="700">vm / cart</text>
+  <text x="500" y="96" fill="#62716a" font-family="Arial,sans-serif" font-size="15">New arrivals</text><text x="626" y="96" fill="#62716a" font-family="Arial,sans-serif" font-size="15">Home</text><text x="714" y="96" fill="#62716a" font-family="Arial,sans-serif" font-size="15">Journal</text>
+  <circle cx="1031" cy="88" r="17" fill="#e6eee7"/><path d="M1023 84h16l-2 13h-12l-2-13zm4-5a4 4 0 018 0" stroke="#31574d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="115" y="171" fill="#7d8a81" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">OBJECTS FOR SLOWER LIVING</text>
+  <text x="115" y="218" fill="#213c35" font-family="Arial,sans-serif" font-size="34" font-weight="700">A little more considered.</text>
+  <text x="115" y="248" fill="#758179" font-family="Arial,sans-serif" font-size="16">Thoughtful everyday pieces, made to last.</text>
+  <rect x="115" y="278" width="295" height="250" rx="13" fill="#e7ede5"/><rect x="440" y="278" width="295" height="250" rx="13" fill="#f1e5da"/><rect x="765" y="278" width="295" height="250" rx="13" fill="#e6e3ed"/>
+  <ellipse cx="264" cy="470" rx="78" ry="14" fill="#526d5f" opacity=".17"/><path d="M210 376h108l-12 89a25 25 0 01-25 22h-34a25 25 0 01-25-22l-12-89z" fill="url(#item1)"/><path d="M233 376c0-38 63-38 63 0" stroke="#355c53" stroke-width="10"/>
+  <ellipse cx="587" cy="470" rx="78" ry="14" fill="#845f4e" opacity=".17"/><path d="M531 419h112l-9 56a20 20 0 01-20 17h-54a20 20 0 01-20-17l-9-56z" fill="url(#item2)"/><path d="M552 418c0-39 70-39 70 0" stroke="#93634c" stroke-width="9"/><path d="M558 403c5-30 58-30 64 0" stroke="#bd9270" stroke-width="5"/>
+  <ellipse cx="913" cy="470" rx="78" ry="14" fill="#5e5978" opacity=".17"/><rect x="848" y="372" width="130" height="98" rx="18" fill="url(#item3)"/><path d="M864 389h98M864 405h67" stroke="#e6e0f1" stroke-width="6" stroke-linecap="round" opacity=".6"/>
+  <text x="115" y="562" fill="#27443a" font-family="Arial,sans-serif" font-size="16" font-weight="700">Ceramic pour-over</text><text x="115" y="588" fill="#718078" font-family="Arial,sans-serif" font-size="14">INR 1,450</text>
+  <text x="440" y="562" fill="#27443a" font-family="Arial,sans-serif" font-size="16" font-weight="700">Everyday carry tote</text><text x="440" y="588" fill="#718078" font-family="Arial,sans-serif" font-size="14">INR 890</text>
+  <text x="765" y="562" fill="#27443a" font-family="Arial,sans-serif" font-size="16" font-weight="700">Desk notes set</text><text x="765" y="588" fill="#718078" font-family="Arial,sans-serif" font-size="14">INR 520</text>
+</svg>
