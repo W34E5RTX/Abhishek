@@ -11,7 +11,8 @@ import { z } from "zod";
 const app = express();
 const prisma = new PrismaClient();
 const port = Number(process.env.API_PORT ?? 4000);
-const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:5173";
+const appBaseUrl = process.env.APP_BASE_URL
+  ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5173");
 const production = process.env.NODE_ENV === "production";
 const cookieName = "as_session";
 
@@ -634,10 +635,14 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   return safeError(res, 500, "The request could not be completed.");
 });
 
-const server = app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
-async function shutdown() {
-  server.close();
-  await prisma.$disconnect();
+export default app;
+
+if (!process.env.VERCEL) {
+  const server = app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
+  async function shutdown() {
+    server.close();
+    await prisma.$disconnect();
+  }
+  process.on("SIGINT", () => void shutdown());
+  process.on("SIGTERM", () => void shutdown());
 }
-process.on("SIGINT", () => void shutdown());
-process.on("SIGTERM", () => void shutdown());

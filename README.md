@@ -105,7 +105,7 @@ The current automated tests cover booking input validation (required fields, mal
 
 ## Deployment and SEO
 
-Build the static frontend with `npm run build` and deploy `dist/` to Vercel. Deploy `apps/api/src/index.ts` as a Node service with the API dependencies and environment variables. Run `npm run db:push` from a controlled deployment environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
+Deploy the repository root to Vercel. `vercel.json` configures the Vite build and static output, while `api/[...path].ts` exposes the Express API as a Vercel Function under `/api`. Configure production environment variables in Vercel before relying on database-backed routes: at minimum, set `DATABASE_URL` and `APP_BASE_URL` to the production MongoDB URL and exact HTTPS site origin. Configure email credentials only if verification and notification email should be enabled. Do not upload a local `.env` file or commit production credentials. Run `npm run db:push` from a controlled environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
 
 Connect `abhisheksharma.tech` after confirming domain ownership and DNS. Configure the production `APP_BASE_URL` to the exact HTTPS origin. Configure production database credentials, HTTPS, backups, provider webhook URLs, transactional email, and private object storage before enabling those features.
 
