@@ -8,6 +8,10 @@ import bcrypt from "bcryptjs";
 import { BookingStatus, Prisma, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
+if (!process.env.DATABASE_URL && process.env.MONGODB_URI) {
+  process.env.DATABASE_URL = process.env.MONGODB_URI;
+}
+
 const app = express();
 const prisma = new PrismaClient();
 const port = Number(process.env.API_PORT ?? 4000);
@@ -196,7 +200,11 @@ app.get("/api/health", asyncRoute(async (_req, res) => {
   try {
     await prisma.$runCommandRaw({ ping: 1 });
     res.json({ status: "ok", database: "connected" });
-  } catch {
+  } catch (error) {
+    const details = error instanceof Prisma.PrismaClientInitializationError
+      ? { name: error.name, code: error.errorCode }
+      : { name: error instanceof Error ? error.name : "UnknownError" };
+    console.error("Database health check failed", details);
     safeError(res, 503, "API is running, but the database is not connected.");
   }
 }));

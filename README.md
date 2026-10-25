@@ -57,7 +57,7 @@ The frontend runs at `http://localhost:5173`; Vite proxies `/api` to `http://loc
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | MongoDB Atlas connection URL used by Prisma Client and `db:push` |
+| `DATABASE_URL` | MongoDB Atlas connection URL used by Prisma Client and `db:push`; `MONGODB_URI` is accepted as a fallback when this is unset |
 | `APP_BASE_URL` | Exact frontend origin accepted by CORS and browser mutation-origin checks |
 | `API_PORT` | Express API listen port |
 | `ADMIN_BOOTSTRAP_EMAIL` / `ADMIN_BOOTSTRAP_PASSWORD` | Optional one-time administrator creation during seeding |
