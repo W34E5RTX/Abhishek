@@ -175,7 +175,7 @@ const requireClientOrAdmin = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
-function parseBody<T>(schema: z.ZodType<T>, req: Request, res: Response): T | null {
+function parseBody<S extends z.ZodType>(schema: S, req: Request, res: Response): z.output<S> | null {
   const result = schema.safeParse(req.body);
   if (!result.success) {
     safeError(res, 400, result.error.issues.map((issue) => issue.message).join(" "));
