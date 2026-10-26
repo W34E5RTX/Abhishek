@@ -1,6 +1,31 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
+const publicRequestTimeoutMs = 10_000;
+
+async function fetchPublicJson(url: string): Promise<unknown> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), publicRequestTimeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    const body: unknown = await response.json();
+    if (!response.ok) {
+      const message = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
+        ? body.error
+        : "Public content could not be loaded.";
+      throw new Error(message);
+    }
+    return body;
+  } catch (failure) {
+    if (controller.signal.aborted) {
+      throw new Error("The server is taking too long to respond. Check the database connection and try again.");
+    }
+    throw failure;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 const categorySchema = z.object({ name: z.string(), slug: z.string() });
 
 export const publicProjectSchema = z.object({
@@ -60,14 +85,8 @@ export function usePublicRecords<T>(url: string, schema: z.ZodType<T[]>) {
     let active = true;
     setLoading(true);
     setError("");
-    fetch(url).then(async (response) => {
-      const body: unknown = await response.json();
-      if (!response.ok) {
-        const message = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string" ? body.error : "Public content could not be loaded.";
-        throw new Error(message);
-      }
-      return schema.parse(body);
-    }).then((records) => { if (active) setItems(records); }).catch((failure: unknown) => {
+    fetchPublicJson(url).then((body) => schema.parse(body))
+      .then((records) => { if (active) setItems(records); }).catch((failure: unknown) => {
       if (active) setError(failure instanceof Error ? failure.message : "Public content could not be loaded.");
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -83,14 +102,8 @@ export function usePublicRecord<T>(url: string, schema: z.ZodType<T>) {
     let active = true;
     setLoading(true);
     setError("");
-    fetch(url).then(async (response) => {
-      const body: unknown = await response.json();
-      if (!response.ok) {
-        const message = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string" ? body.error : "Public content could not be loaded.";
-        throw new Error(message);
-      }
-      return schema.parse(body);
-    }).then((record) => { if (active) setItem(record); }).catch((failure: unknown) => {
+    fetchPublicJson(url).then((body) => schema.parse(body))
+      .then((record) => { if (active) setItem(record); }).catch((failure: unknown) => {
       if (active) setError(failure instanceof Error ? failure.message : "Public content could not be loaded.");
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
