@@ -2,7 +2,15 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const directUrl = process.env.DIRECT_URL;
+if (!directUrl) {
+  throw new Error("DIRECT_URL is required to seed the database.");
+}
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: directUrl },
+  },
+});
 const serviceRecords = [
   { slug: "frontend-development", title: "Frontend Development", category: "Development", description: "Responsive, accessible interfaces that feel considered on every screen.", deliverables: ["React applications", "Responsive interfaces", "Interactive dashboards", "Performance and accessibility"] },
   { slug: "backend-development", title: "Backend Development", category: "Development", description: "Reliable APIs and data foundations to power your product.", deliverables: ["REST API development", "Authentication systems", "Database design", "Third-party integrations"] },

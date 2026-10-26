@@ -1,6 +1,6 @@
 # Abhishek Sharma — Portfolio Platform
 
-A responsive portfolio and service-booking application with a React/TypeScript frontend, Express REST API, and Prisma/MongoDB data model.
+A responsive portfolio and service-booking application with a React/TypeScript frontend, Express REST API, and Prisma/Neon PostgreSQL data model.
 
 ## Current implementation
 
@@ -14,14 +14,14 @@ The following production workflows are **not complete or enabled yet**: admin CR
 
 - React 19, TypeScript, Vite, React Router
 - Framer Motion, Lucide React, React Hook Form, Zod
-- Express 5, TypeScript, Prisma 6, MongoDB Atlas
+- Express 5, TypeScript, Prisma 6, Neon PostgreSQL
 - bcryptjs password hashing, Helmet, strict CORS, rate limits, HttpOnly session cookies
 - CSS design tokens and component styles (the current styling is CSS-first; Tailwind utilities are not yet used)
 
 ## Prerequisites
 
 - Node.js 20 or newer and npm
-- A MongoDB Atlas cluster (replica-set support is required for transactional workflows)
+- A Neon PostgreSQL project
 - A supported Node.js hosting provider for the API
 
 ## Local setup
@@ -31,9 +31,9 @@ npm install
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Set `DATABASE_URL` in `.env` to your MongoDB Atlas connection string, including the database name. The local `.env` is ignored by Git. This project currently uses the `portfolio` database name in its local connection string.
+Set `DATABASE_URL` in `.env` to the pooled Neon PostgreSQL connection string for the API runtime, and `DIRECT_URL` to the direct (unpooled) connection string for Prisma schema commands and seeding. The local `.env` is ignored by Git.
 
-Generate the Prisma Client, synchronize the MongoDB collections and indexes, and add non-sensitive starter content:
+Generate the Prisma Client, synchronize the PostgreSQL schema, and add non-sensitive starter content:
 
 ```powershell
 npm run db:generate
@@ -57,7 +57,8 @@ The frontend runs at `http://localhost:5173`; Vite proxies `/api` to `http://loc
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | MongoDB Atlas connection URL used by Prisma Client and `db:push`; `MONGODB_URI` is accepted as a fallback when this is unset |
+| `DATABASE_URL` | Pooled Neon connection URL used by the API's Prisma Neon adapter |
+| `DIRECT_URL` | Direct, unpooled Neon connection URL used by Prisma schema commands and database seeding |
 | `APP_BASE_URL` | Exact frontend origin accepted by CORS and browser mutation-origin checks |
 | `API_PORT` | Express API listen port |
 | `ADMIN_BOOTSTRAP_EMAIL` / `ADMIN_BOOTSTRAP_PASSWORD` | Optional one-time administrator creation during seeding |
@@ -70,7 +71,7 @@ No real credentials belong in the repository. `.env` is ignored by Git.
 
 ## Database and API
 
-The collection and index definitions are in `prisma/schema.prisma`. MongoDB does not use Prisma SQL migrations; run `npm run db:push` to synchronize the schema. Models use string CUID primary keys stored as MongoDB `_id` values. Monetary values are stored as decimal strings to avoid floating-point rounding.
+The table and index definitions are in `prisma/schema.prisma`. Run `npm run db:push` to synchronize the PostgreSQL schema. Models use string CUID primary keys. Monetary values are stored as decimal strings to avoid floating-point rounding.
 
 Implemented route groups:
 
@@ -105,7 +106,7 @@ The current automated tests cover booking input validation (required fields, mal
 
 ## Deployment and SEO
 
-Deploy the repository root to Vercel. `vercel.json` configures the Vite build and static output, while `api/[...path].ts` exposes the Express API as a Vercel Function under `/api`. Configure production environment variables in Vercel before relying on database-backed routes: at minimum, set `DATABASE_URL` and `APP_BASE_URL` to the production MongoDB URL and exact HTTPS site origin. Configure email credentials only if verification and notification email should be enabled. Do not upload a local `.env` file or commit production credentials. Run `npm run db:push` from a controlled environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
+Deploy the repository root to Vercel. `vercel.json` configures the Vite build and static output, while `api/[...path].ts` exposes the Express API as a Vercel Function under `/api`. Configure production environment variables in Vercel before relying on database-backed routes: set `DATABASE_URL` to the pooled Neon PostgreSQL URL, `DIRECT_URL` to the direct/unpooled URL, and `APP_BASE_URL` to the exact HTTPS site origin. The API uses the pooled URL through Prisma's Neon adapter; schema commands and seeding use the direct URL. Configure email credentials only if verification and notification email should be enabled. Do not upload a local `.env` file or commit production credentials. Run `npm run db:push` from a controlled environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
 
 Connect `abhisheksharma.tech` after confirming domain ownership and DNS. Configure the production `APP_BASE_URL` to the exact HTTPS origin. Configure production database credentials, HTTPS, backups, provider webhook URLs, transactional email, and private object storage before enabling those features.
 
@@ -117,7 +118,7 @@ Policy pages are editable starting templates, not legal advice. Have the actual 
 
 - `src/` — Vite application, reusable page sections, form validation, and responsive design tokens
 - `apps/api/src/` — Express API, request validation, authentication/session handling, role checks, and resource routes
-- `prisma/` — MongoDB schema and development seed
+- `prisma/` — PostgreSQL schema and development seed
 - `public/` — crawler directives and current public-route sitemap
 
 ## Remaining work before the requested production acceptance

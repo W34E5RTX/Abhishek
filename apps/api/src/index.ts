@@ -5,15 +5,18 @@ import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import bcrypt from "bcryptjs";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { BookingStatus, Prisma, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
-if (!process.env.DATABASE_URL && process.env.MONGODB_URI) {
-  process.env.DATABASE_URL = process.env.MONGODB_URI;
-}
-
 const app = express();
-const prisma = new PrismaClient();
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is required.");
+}
+const prisma = new PrismaClient({
+  adapter: new PrismaNeon({ connectionString: databaseUrl }),
+});
 const port = Number(process.env.API_PORT ?? 4000);
 const appBaseUrl = process.env.APP_BASE_URL
   ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5173");
@@ -198,7 +201,7 @@ function asyncRoute(handler: (req: Request, res: Response, next: NextFunction) =
 
 app.get("/api/health", asyncRoute(async (_req, res) => {
   try {
-    await prisma.$runCommandRaw({ ping: 1 });
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: "ok", database: "connected" });
   } catch (error) {
     const details = error instanceof Prisma.PrismaClientInitializationError

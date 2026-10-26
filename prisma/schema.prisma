@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum UserRole {
@@ -52,7 +53,7 @@ enum MilestoneStatus {
 }
 
 model User {
-  id              String          @id @default(cuid()) @map("_id")
+  id              String          @id @default(cuid())
   email           String          @unique
   passwordHash    String
   role            UserRole        @default(CLIENT)
@@ -72,7 +73,7 @@ model User {
 }
 
 model UserProfile {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String   @unique
   fullName  String?
   phone     String?
@@ -83,7 +84,7 @@ model UserProfile {
 }
 
 model Session {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   tokenHash String   @unique
   userId    String
   expiresAt DateTime
@@ -94,7 +95,7 @@ model Session {
 }
 
 model AccountToken {
-  id        String              @id @default(cuid()) @map("_id")
+  id        String              @id @default(cuid())
   userId    String
   tokenHash String              @unique
   purpose   AccountTokenPurpose
@@ -106,14 +107,14 @@ model AccountToken {
 }
 
 model ProjectCategory {
-  id       String    @id @default(cuid()) @map("_id")
+  id       String    @id @default(cuid())
   slug     String    @unique
   name     String    @unique
   projects Project[]
 }
 
 model Project {
-  id              String              @id @default(cuid()) @map("_id")
+  id              String              @id @default(cuid())
   slug            String              @unique
   title           String
   description     String
@@ -136,7 +137,7 @@ model Project {
 }
 
 model ProjectTechnology {
-  id        String  @id @default(cuid()) @map("_id")
+  id        String  @id @default(cuid())
   projectId String
   name      String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -145,14 +146,14 @@ model ProjectTechnology {
 }
 
 model ServiceCategory {
-  id       String    @id @default(cuid()) @map("_id")
+  id       String    @id @default(cuid())
   slug     String    @unique
   name     String    @unique
   services Service[]
 }
 
 model Service {
-  id              String          @id @default(cuid()) @map("_id")
+  id              String          @id @default(cuid())
   slug            String          @unique
   title           String
   description     String
@@ -172,7 +173,7 @@ model Service {
 }
 
 model Booking {
-  id              String              @id @default(cuid()) @map("_id")
+  id              String              @id @default(cuid())
   reference       String              @unique
   serviceId       String?
   serviceName     String
@@ -200,7 +201,7 @@ model Booking {
 }
 
 model BookingAttachment {
-  id         String   @id @default(cuid()) @map("_id")
+  id         String   @id @default(cuid())
   bookingId  String
   storageKey String
   fileName   String
@@ -211,7 +212,7 @@ model BookingAttachment {
 }
 
 model Proposal {
-  id             String         @id @default(cuid()) @map("_id")
+  id             String         @id @default(cuid())
   reference      String         @unique
   bookingId      String
   clientId       String
@@ -237,7 +238,7 @@ model Proposal {
 }
 
 model ProposalItem {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String   @id @default(cuid())
   proposalId  String
   title       String
   description String?
@@ -246,7 +247,7 @@ model ProposalItem {
 }
 
 model ClientProject {
-  id         String             @id @default(cuid()) @map("_id")
+  id         String             @id @default(cuid())
   clientId   String
   projectId  String?
   proposalId String?            @unique
@@ -264,7 +265,7 @@ model ClientProject {
 }
 
 model ProjectMilestone {
-  id          String          @id @default(cuid()) @map("_id")
+  id          String          @id @default(cuid())
   projectId   String
   title       String
   description String?
@@ -280,7 +281,7 @@ model ProjectMilestone {
 }
 
 model ProjectUpdate {
-  id        String        @id @default(cuid()) @map("_id")
+  id        String        @id @default(cuid())
   projectId String
   message   String
   createdAt DateTime      @default(now())
@@ -290,7 +291,7 @@ model ProjectUpdate {
 }
 
 model Product {
-  id              String          @id @default(cuid()) @map("_id")
+  id              String          @id @default(cuid())
   slug            String          @unique
   title           String
   description     String
@@ -318,14 +319,14 @@ model Product {
 }
 
 model ProductCategory {
-  id       String    @id @default(cuid()) @map("_id")
+  id       String    @id @default(cuid())
   slug     String    @unique
   name     String    @unique
   products Product[]
 }
 
 model ProductFile {
-  id         String   @id @default(cuid()) @map("_id")
+  id         String   @id @default(cuid())
   productId  String
   storageKey String
   fileName   String
@@ -337,7 +338,7 @@ model ProductFile {
 }
 
 model ProductLicense {
-  id          String    @id @default(cuid()) @map("_id")
+  id          String    @id @default(cuid())
   name        String    @unique
   description String
   terms       String
@@ -346,7 +347,7 @@ model ProductLicense {
 }
 
 model Cart {
-  id        String     @id @default(cuid()) @map("_id")
+  id        String     @id @default(cuid())
   userId    String     @unique
   updatedAt DateTime   @updatedAt
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -354,7 +355,7 @@ model Cart {
 }
 
 model CartItem {
-  id        String  @id @default(cuid()) @map("_id")
+  id        String  @id @default(cuid())
   cartId    String
   productId String
   quantity  Int     @default(1)
@@ -365,7 +366,7 @@ model CartItem {
 }
 
 model Order {
-  id        String      @id @default(cuid()) @map("_id")
+  id        String      @id @default(cuid())
   reference String      @unique
   userId    String
   status    String      @default("PENDING")
@@ -381,7 +382,7 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid()) @map("_id")
+  id        String  @id @default(cuid())
   orderId   String
   productId String
   quantity  Int     @default(1)
@@ -391,7 +392,7 @@ model OrderItem {
 }
 
 model Payment {
-  id                    String                @id @default(cuid()) @map("_id")
+  id                    String                @id @default(cuid())
   orderId               String?
   provider              String
   providerTransactionId String?               @unique
@@ -407,7 +408,7 @@ model Payment {
 }
 
 model PaymentWebhookEvent {
-  id          String    @id @default(cuid()) @map("_id")
+  id          String    @id @default(cuid())
   provider    String
   eventId     String
   paymentId   String?
@@ -420,7 +421,7 @@ model PaymentWebhookEvent {
 }
 
 model DownloadGrant {
-  id            String          @id @default(cuid()) @map("_id")
+  id            String          @id @default(cuid())
   userId        String
   productId     String
   expiresAt     DateTime?
@@ -435,7 +436,7 @@ model DownloadGrant {
 }
 
 model DownloadAudit {
-  id        String        @id @default(cuid()) @map("_id")
+  id        String        @id @default(cuid())
   grantId   String
   createdAt DateTime      @default(now())
   grant     DownloadGrant @relation(fields: [grantId], references: [id], onDelete: Cascade)
@@ -444,7 +445,7 @@ model DownloadAudit {
 }
 
 model ContactMessage {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   name      String
   email     String
   message   String
@@ -454,7 +455,7 @@ model ContactMessage {
 }
 
 model Testimonial {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   clientId  String?
   name      String
   role      String?
@@ -468,7 +469,7 @@ model Testimonial {
 }
 
 model FAQ {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   question  String
   answer    String
   sortOrder Int      @default(0)
@@ -477,7 +478,7 @@ model FAQ {
 }
 
 model Experience {
-  id               String    @id @default(cuid()) @map("_id")
+  id               String    @id @default(cuid())
   company          String
   title            String
   startDate        DateTime?
@@ -492,7 +493,7 @@ model Experience {
 }
 
 model Education {
-  id             String   @id @default(cuid()) @map("_id")
+  id             String   @id @default(cuid())
   institution    String
   qualification  String
   fieldOfStudy   String?
@@ -505,7 +506,7 @@ model Education {
 }
 
 model Skill {
-  id        String  @id @default(cuid()) @map("_id")
+  id        String  @id @default(cuid())
   name      String
   category  String
   label     String?
@@ -515,13 +516,13 @@ model Skill {
 }
 
 model SiteSetting {
-  key       String   @id @map("_id")
+  key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
 }
 
 model AuditLog {
-  id         String   @id @default(cuid()) @map("_id")
+  id         String   @id @default(cuid())
   actorId    String?
   action     String
   resource   String
