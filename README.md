@@ -57,7 +57,7 @@ The frontend runs at `http://localhost:5173`; Vite proxies `/api` to `http://loc
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | Pooled Neon connection URL used by the API's Prisma Neon adapter |
+| `DATABASE_URL` | Pooled Neon connection URL used by Prisma Client in the API |
 | `DIRECT_URL` | Direct, unpooled Neon connection URL used by Prisma schema commands and database seeding |
 | `APP_BASE_URL` | Exact frontend origin accepted by CORS and browser mutation-origin checks |
 | `API_PORT` | Express API listen port |
@@ -106,7 +106,7 @@ The current automated tests cover booking input validation (required fields, mal
 
 ## Deployment and SEO
 
-Deploy the repository root to Vercel. `vercel.json` configures the Vite build and static output, while `api/[...path].ts` exposes the Express API as a Vercel Function under `/api`. Configure production environment variables in Vercel before relying on database-backed routes: set `DATABASE_URL` to the pooled Neon PostgreSQL URL, `DIRECT_URL` to the direct/unpooled URL, and `APP_BASE_URL` to the exact HTTPS site origin. The API uses the pooled URL through Prisma's Neon adapter; schema commands and seeding use the direct URL. Configure email credentials only if verification and notification email should be enabled. Do not upload a local `.env` file or commit production credentials. Run `npm run db:push` from a controlled environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
+Deploy the repository root to Vercel. `vercel.json` configures the Vite build and static output, while `api/[...path].ts` exposes the Express API as a Vercel Function under `/api`. Configure production environment variables in Vercel before relying on database-backed routes: set `DATABASE_URL` to the pooled Neon PostgreSQL URL, `DIRECT_URL` to the direct/unpooled URL, and `APP_BASE_URL` to the exact HTTPS site origin. The API uses the pooled URL through Prisma Client; schema commands and seeding use the direct URL. Configure email credentials only if verification and notification email should be enabled. Do not upload a local `.env` file or commit production credentials. Run `npm run db:push` from a controlled environment before exposing schema-dependent API code; do not synchronize schema automatically at application startup.
 
 Connect `abhisheksharma.tech` after confirming domain ownership and DNS. Configure the production `APP_BASE_URL` to the exact HTTPS origin. Configure production database credentials, HTTPS, backups, provider webhook URLs, transactional email, and private object storage before enabling those features.
 

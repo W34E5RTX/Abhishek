@@ -5,17 +5,11 @@ import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import bcrypt from "bcryptjs";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import { BookingStatus, Prisma, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 const app = express();
-const databaseUrl = process.env.DATABASE_URL;
-const prisma = databaseUrl
-  ? new PrismaClient({
-      adapter: new PrismaNeon({ connectionString: databaseUrl }),
-    })
-  : new PrismaClient();
+const prisma = new PrismaClient();
 const port = Number(process.env.API_PORT ?? 4000);
 const appBaseUrl = process.env.APP_BASE_URL
   ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5173");
