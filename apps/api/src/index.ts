@@ -10,6 +10,9 @@ import { z } from "zod";
 
 const app = express();
 const prisma = new PrismaClient();
+if (!process.env.DATABASE_URL) {
+  console.error("DATABASE_URL is not configured; database-backed API routes will be unavailable.");
+}
 const port = Number(process.env.API_PORT ?? 4000);
 const appBaseUrl = process.env.APP_BASE_URL
   ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:5173");
@@ -183,8 +186,29 @@ function parseBody<S extends z.ZodType>(schema: S, req: Request, res: Response):
   }
   return result.data;
 }
-function dbUnavailable(res: Response) {
-  return safeError(res, 503, "The database is not available. Configure DATABASE_URL and run the Prisma schema push.");
+function databaseDiagnostic(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  const category = !process.env.DATABASE_URL
+    ? "missing_database_url"
+    : /p1000|authentication failed|password authentication failed/.test(message)
+      ? "authentication_failed"
+      : /p1001|can't reach|could not connect|connection refused/.test(message)
+        ? "database_unreachable"
+        : /p1002|timed out|timeout/.test(message)
+          ? "connection_timeout"
+          : error instanceof Prisma.PrismaClientInitializationError
+            ? "prisma_initialization_failed"
+            : "database_request_failed";
+  return {
+    databaseUrlConfigured: Boolean(process.env.DATABASE_URL),
+    category,
+    errorType: error instanceof Error ? error.name : "UnknownError",
+    errorCode: error instanceof Prisma.PrismaClientInitializationError ? error.errorCode : undefined,
+  };
+}
+function dbUnavailable(res: Response, error: unknown) {
+  console.error("Database connection failed", databaseDiagnostic(error));
+  return safeError(res, 503, "The database-backed service is temporarily unavailable. Please try again later.");
 }
 function asyncRoute(handler: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -197,10 +221,7 @@ app.get("/api/health", asyncRoute(async (_req, res) => {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: "ok", database: "connected" });
   } catch (error) {
-    const details = error instanceof Prisma.PrismaClientInitializationError
-      ? { name: error.name, code: error.errorCode }
-      : { name: error instanceof Error ? error.name : "UnknownError" };
-    console.error("Database health check failed", details);
+    console.error("Database health check failed", databaseDiagnostic(error));
     safeError(res, 503, "API is running, but the database is not connected.");
   }
 }));
@@ -214,7 +235,7 @@ app.get("/api/projects", asyncRoute(async (_req, res) => {
     });
     res.json(items.map(({ technologies, projectCategory, ...project }) => ({ ...project, category: projectCategory, technologies: technologies.map((item) => item.name) })));
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res);
+    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res, error);
     throw error;
   }
 }));
@@ -300,7 +321,7 @@ app.post("/api/bookings", inquiryLimiter, asyncRoute(async (req, res) => {
     }
     res.status(201).json({ ...booking, emailStatus });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res);
+    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res, error);
     throw error;
   }
 }));
@@ -311,7 +332,7 @@ app.post("/api/contact", inquiryLimiter, asyncRoute(async (req, res) => {
     const message = await prisma.contactMessage.create({ data: input, select: { id: true, createdAt: true } });
     res.status(201).json({ received: true, id: message.id });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res);
+    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res, error);
     throw error;
   }
 }));
@@ -337,7 +358,7 @@ app.post("/api/auth/register", authLimiter, asyncRoute(async (req, res) => {
     res.status(201).json({ message: "Account created. Check your inbox to verify your email before signing in." });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return safeError(res, 409, "An account with this email already exists.");
-    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res);
+    if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res, error);
     throw error;
   }
 }));
@@ -630,7 +651,7 @@ app.patch("/api/admin/bookings/:id/status", requireRole("ADMIN"), asyncRoute(asy
 app.use((_req, res) => safeError(res, 404, "API route not found."));
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (error instanceof WorkflowConflictError) return safeError(res, 409, error.message);
-  if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res);
+  if (error instanceof Prisma.PrismaClientInitializationError) return dbUnavailable(res, error);
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     console.error("Database request failed", { code: error.code });
     return safeError(res, 500, "The request could not be completed.");
