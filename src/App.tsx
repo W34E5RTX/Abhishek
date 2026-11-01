@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Asterisk, BadgeCheck, BriefcaseBusiness,
@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { capabilities, products, projects, services } from "./content";
 import { bookingSchema, bookingStepSchemas, contactFormSchema } from "./bookingValidation";
+import { safeReturnTo } from "./returnTo";
 import {
   faqsSchema, publicProductSchema, publicProductsSchema, publicProjectSchema, publicProjectsSchema,
   publicServiceSchema, publicServicesSchema, type PublicProject,
@@ -17,6 +18,18 @@ import {
 
 const serviceIcons = [Code2, Server, Layers3, PenTool, ShoppingBag, Sparkles];
 const navLinks = [["Home", "/"], ["About", "/about"], ["Projects", "/projects"], ["Services", "/services"], ["Products", "/products"], ["Contact", "/contact"]];
+const canonicalOrigin = "https://abhishek-virid-beta.vercel.app";
+const homeDescription = "Abhishek Sharma is a web developer and software engineer in Dehradun, India, building React websites, full-stack applications, APIs, and digital products.";
+const defaultKeywords = "Abhishek Sharma, Abhishek Sharma web developer, web developer in India, React developer, full-stack developer, website development";
+
+function ensureMeta(selector: string, attributes: Record<string, string>): HTMLMetaElement {
+  const existing = document.querySelector<HTMLMetaElement>(selector);
+  if (existing) return existing;
+  const element = document.createElement("meta");
+  Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, value));
+  document.head.appendChild(element);
+  return element;
+}
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,7 +74,7 @@ function Home() {
   return <>
     <main>
       <section className="hero page-shell">
-        <div className="hero-copy"><Eyebrow>ABHISHEK SHARMA <span className="eyebrow-sep">•</span> WEB DEVELOPER &amp; SOFTWARE ENGINEER</Eyebrow><h1>Turning ideas into<br /><span className="gradient-text">digital experiences.</span></h1><p className="hero-lede">I’m Abhishek Sharma, a web developer focused on building modern websites, full-stack applications, SaaS platforms, and digital products that solve real problems.</p><div className="button-row"><Link className="button button-primary" to="/book">Start a project <ArrowUpRight size={16} /></Link><Link className="button button-outline" to="/projects">Explore my work <ArrowRight size={16} /></Link></div><Link className="hero-products-link" to="/products">Or explore digital products <ArrowDownRight size={15} /></Link></div>
+        <div className="hero-copy"><Eyebrow>WEB DEVELOPER <span className="eyebrow-sep">•</span> SOFTWARE ENGINEER</Eyebrow><h1>Abhishek Sharma<br /><span className="gradient-text">Web Developer.</span></h1><p className="hero-lede">I’m Abhishek Sharma, a web developer focused on building modern websites, full-stack applications, SaaS platforms, and digital products that solve real problems.</p><div className="button-row"><Link className="button button-primary" to="/book">Start a project <ArrowUpRight size={16} /></Link><Link className="button button-outline" to="/projects">Explore my work <ArrowRight size={16} /></Link></div><Link className="hero-products-link" to="/products">Or explore digital products <ArrowDownRight size={15} /></Link></div>
         <div className="hero-art" aria-label="Abstract, configurable profile image placeholder"><div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><div className="hero-image-placeholder"><div className="placeholder-grid" /><div className="profile-initials">AS<span>.</span></div><div className="image-caption">YOUR PORTRAIT<br />GOES HERE</div></div><div className="hero-code-card"><span className="code-dots"><i /><i /><i /></span><code><span className="code-purple">const</span> idea = <span className="code-green">"build"</span>;<br /><span className="code-purple">const</span> result = <span className="code-blue">create</span>(idea);<br /><span className="code-comment">// one thoughtful step at a time</span></code></div><div className="floating-label"><span className="availability-dot" />Building useful things</div></div>
         <div className="hero-scroll"><span>SCROLL TO EXPLORE</span><ArrowDown size={14} /></div>
       </section>
@@ -157,7 +170,59 @@ function ProductDetail() {
   return <main><PageIntro eyebrow={product.sampleRecord ? `DEMO LISTING · ${product.category.name.toUpperCase()}` : product.category.name.toUpperCase()} title={<>{product.title}.<br /><span className="heading-muted">A resource for your next build.</span></>} text={product.description} /><section className="section page-shell product-detail-layout"><div className="product-detail-cover"><span>{product.title.slice(0, 1)}</span><small>{product.sampleRecord ? "DEMO PREVIEW · NOT FOR SALE" : product.coverImage ? "PRODUCT PREVIEW" : "PREVIEW IMAGE NOT CONFIGURED"}</small></div><div><div className="notice-box"><Sparkles size={17} /><span>{product.sampleRecord ? "This is a demo listing to showcase the marketplace. No product files are available and it cannot be purchased." : "Checkout and payment are not enabled yet. This listing cannot be purchased through this application."}</span></div><Eyebrow>PRODUCT INFORMATION</Eyebrow><h2>{product.sampleRecord ? "Demo product" : product.price === "0" ? "Free product" : product.price ? `${product.currency} ${product.price}` : "Price not configured"}</h2>{features.length > 0 && <ul className="check-list">{features.map((feature) => <li key={feature}><Check size={16} />{feature}</li>)}</ul>}<p>{product.requirements || "Requirements have not been configured."}</p><p>Version: {product.version || "Not configured"} · License: {product.license || "Not configured"}</p><Link to="/products" className="text-link">Back to products <ArrowLeft size={15} /></Link></div></section></main>;
 }
 
+type BookingUser = { id: string; email: string; role: "CLIENT" | "ADMIN" };
+type BookingAccessState =
+  | { status: "checking" }
+  | { status: "signedOut" }
+  | { status: "signedIn"; user: BookingUser }
+  | { status: "error"; message: string };
+
+function isBookingUser(value: unknown): value is BookingUser {
+  return typeof value === "object" && value !== null
+    && "id" in value && typeof value.id === "string"
+    && "email" in value && typeof value.email === "string"
+    && "role" in value && (value.role === "CLIENT" || value.role === "ADMIN");
+}
+
 function BookingPage() {
+  const location = useLocation();
+  const [access, setAccess] = useState<BookingAccessState>({ status: "checking" });
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me").then(async (response) => {
+      if (response.status === 401) {
+        if (active) setAccess({ status: "signedOut" });
+        return;
+      }
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const message = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
+          ? body.error
+          : "Your account could not be verified.";
+        throw new Error(message);
+      }
+      if (typeof body !== "object" || body === null || !("user" in body) || !isBookingUser(body.user)) {
+        throw new Error("The account response was invalid.");
+      }
+      if (active) setAccess({ status: "signedIn", user: body.user });
+    }).catch((failure: unknown) => {
+      if (active) setAccess({ status: "error", message: failure instanceof Error ? failure.message : "Your account could not be verified." });
+    });
+    return () => { active = false; };
+  }, [retry]);
+
+  if (access.status === "checking") return <main className="auth-page page-shell"><div className="auth-panel"><Eyebrow>CLIENT PORTAL</Eyebrow><h1>Checking your account.</h1><p role="status">Please wait while we verify your sign-in.</p></div></main>;
+  if (access.status === "error") return <main className="auth-page page-shell"><div className="auth-panel"><Eyebrow>CLIENT PORTAL</Eyebrow><h1>We couldn’t verify your account.</h1><p className="form-error" role="alert">{access.message}</p><button className="button button-outline" onClick={() => { setAccess({ status: "checking" }); setRetry((value) => value + 1); }}>Try again</button></div></main>;
+  if (access.status === "signedOut") {
+    const returnTo = safeReturnTo(`${location.pathname}${location.search}${location.hash}`);
+    return <Navigate to={`/login?returnTo=${encodeURIComponent(returnTo)}`} replace />;
+  }
+  return <BookingForm user={access.user} />;
+}
+
+function BookingForm({ user }: { user: BookingUser }) {
   const { serviceSlug } = useParams();
   const availableServices = usePublicRecords("/api/services", publicServicesSchema);
   const selectedService = services.find((item) => item.slug === serviceSlug)?.title ?? "";
@@ -165,7 +230,7 @@ function BookingPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
-  const [form, setForm] = useState({ service: selectedService, title: "", description: "", requirements: "", budget: "", timeline: "", name: "", email: "", phone: "", contact: "Email", privacy: false });
+  const [form, setForm] = useState({ service: selectedService, title: "", description: "", requirements: "", budget: "", timeline: "", name: "", email: user.email, phone: "", contact: "Email", privacy: false });
   useEffect(() => {
     const current = availableServices.items.find((item) => item.slug === serviceSlug);
     if (current) setForm((value) => ({ ...value, service: current.title }));
@@ -199,7 +264,7 @@ function BookingPage() {
   return <main className="booking-page page-shell"><div className="booking-heading"><Eyebrow>PROJECT INQUIRY</Eyebrow><h1>Let’s make a<br /><span className="heading-muted">thoughtful plan.</span></h1><p>Share a little about what you have in mind. Timelines and pricing are confirmed only after reviewing the scope.</p></div><div className="booking-panel"><div className="stepper">{steps.map((label, index) => <div className={`stepper-item ${step === index + 1 ? "current" : ""} ${step > index + 1 ? "complete" : ""}`} key={label}><span>{step > index + 1 ? <Check size={13} /> : `0${index + 1}`}</span><small>{label}</small></div>)}</div><form onSubmit={submit} noValidate>
     {step === 1 && <div className="form-step"><span className="footer-label">STEP 01 — CHOOSE A SERVICE</span><h2>What can I help with?</h2><CollectionMessage loading={availableServices.loading} error={availableServices.error} empty={!availableServices.items.length} label="services" /><div className="service-choice-grid">{availableServices.items.map((service, i) => { const knownIndex = services.findIndex((item) => item.slug === service.slug); const Icon = serviceIcons[knownIndex < 0 ? i % serviceIcons.length : knownIndex]; return <button type="button" className={`service-choice ${form.service === service.title ? "chosen" : ""}`} key={service.slug} onClick={() => update("service", service.title)}><Icon size={18} /><span>{service.title}</span>{form.service === service.title && <Check size={15} />}</button>; })}<button type="button" className={`service-choice ${form.service === "Custom Project" ? "chosen" : ""}`} onClick={() => update("service", "Custom Project")}><Asterisk size={18} /><span>Custom project</span>{form.service === "Custom Project" && <Check size={15} />}</button></div></div>}
     {step === 2 && <div className="form-step"><span className="footer-label">STEP 02 — PROJECT INFORMATION</span><h2>Tell me about the idea.</h2><label>Project title<input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="e.g. A website for my business" required /></label><label>Project description<textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="What are you hoping to build? What should it help you achieve?" rows={4} required /></label><label>Features or requirements<textarea value={form.requirements} onChange={(e) => update("requirements", e.target.value)} placeholder="Anything specific you already know you need" rows={3} /></label><div className="form-two-col"><label>Budget range<select value={form.budget} onChange={(e) => update("budget", e.target.value)}><option value="">Choose a range</option>{budgetOptions.map((x) => <option key={x}>{x}</option>)}</select></label><label>Preferred timeline<select value={form.timeline} onChange={(e) => update("timeline", e.target.value)}><option value="">Choose a timeline</option>{timelineOptions.map((x) => <option key={x}>{x}</option>)}</select></label></div><p className="field-hint">Budget ranges are for discussion only. Timeline requires confirmation after requirements review.</p></div>}
-    {step === 3 && <div className="form-step"><span className="footer-label">STEP 03 — CONTACT DETAILS</span><h2>How can I reach you?</h2><label>Full name<input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your name" autoComplete="name" required /></label><label>Email address<input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@example.com" autoComplete="email" required /></label><div className="form-two-col"><label>Phone number <span className="optional">(optional)</span><input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+91" autoComplete="tel" /></label><label>Preferred contact<select value={form.contact} onChange={(e) => update("contact", e.target.value)}><option>Email</option><option>Phone</option><option>WhatsApp</option></select></label></div><p className="field-hint">Attachments can be shared after the initial conversation through a secure channel.</p></div>}
+    {step === 3 && <div className="form-step"><span className="footer-label">STEP 03 — CONTACT DETAILS</span><h2>How can I reach you?</h2><label>Full name<input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your name" autoComplete="name" required /></label><label>Account email<input type="email" value={form.email} autoComplete="email" disabled /></label><div className="form-two-col"><label>Phone number <span className="optional">(optional)</span><input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+91" autoComplete="tel" /></label><label>Preferred contact<select value={form.contact} onChange={(e) => update("contact", e.target.value)}><option>Email</option><option>Phone</option><option>WhatsApp</option></select></label></div><p className="field-hint">Your inquiry will be saved to this account. Attachments can be shared after the initial conversation through a secure channel.</p></div>}
     {step === 4 && <div className="form-step"><span className="footer-label">STEP 04 — REVIEW & SUBMIT</span><h2>Does this look right?</h2><div className="review-summary">{[["Service", form.service], ["Project", form.title], ["Description", form.description], ["Budget", form.budget || "Not specified"], ["Timeline", form.timeline || "Not specified"], ["Contact", `${form.name} · ${form.email}`]].map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div><label className="checkbox-label"><input type="checkbox" checked={form.privacy} onChange={(e) => update("privacy", e.target.checked)} /><span>I agree to the <Link to="/privacy" target="_blank">privacy policy</Link> and consent to being contacted about this inquiry.</span></label><p className="field-hint">Submitting creates a new inquiry for review; it does not confirm a project or charge a payment.</p></div>}
     {error && <div className="form-error" role="alert">{error}</div>}<div className="form-actions">{step > 1 ? <button type="button" className="button button-outline" onClick={() => { setError(""); setStep((current) => current - 1); }}><ArrowLeft size={15} /> Back</button> : <span />}{step < 4 ? <button type="button" className="button button-primary" onClick={next}>Continue <ArrowRight size={15} /></button> : <button className="button button-primary" disabled={busy}>{busy ? "Sending…" : "Send project inquiry"} <ArrowUpRight size={16} /></button>}</div>
   </form></div></main>;
@@ -226,17 +291,22 @@ function Contact() {
 function AuthPage({ register = false }: { register?: boolean }) {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = safeReturnTo(searchParams.get("returnTo"));
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setStatus("Checking your account…");
     const values = Object.fromEntries(new FormData(event.currentTarget));
-    try { const response = await fetch(`/api/auth/${register ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Authentication is not available."); if (register) setStatus(data.message); else { setStatus("Signed in."); navigate("/dashboard"); } }
+    try { const response = await fetch(`/api/auth/${register ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(register ? { ...values, returnTo } : values) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Authentication is not available."); if (register) setStatus(data.message); else { setStatus("Signed in."); navigate(returnTo); } }
     catch (error) { setStatus(error instanceof Error ? error.message : "Unable to authenticate. Please try again."); }
   };
-  return <main className="auth-page page-shell"><div className="auth-panel"><Link className="back-link" to="/"><ArrowLeft size={15} /> Back to website</Link><Eyebrow>CLIENT PORTAL</Eyebrow><h1>{register ? "Create your account." : "Welcome back."}</h1><p>{register ? "Create an account to keep project updates and proposals in one place. Email verification is required." : "Sign in to view your projects, proposals, and updates."}</p><form onSubmit={submit} className="contact-form">{register && <label>Full name<input name="name" autoComplete="name" required minLength={2} /></label>}<label>Email address<input type="email" name="email" autoComplete="email" required /></label><label>Password<input type="password" name="password" autoComplete={register ? "new-password" : "current-password"} minLength={10} required /></label><button className="button button-primary button-full">{register ? "Create account" : "Sign in"} <ArrowRight size={15} /></button></form>{status && <p className="form-status" role="status">{status}</p>}{!register && <p className="auth-switch"><Link to="/forgot-password">Forgot your password?</Link></p>}{register && <p className="auth-switch"><Link to="/verify-email">Resend verification email</Link></p>}<p className="auth-switch">{register ? "Already have an account?" : "New to the client portal?"} <Link to={register ? "/login" : "/register"}>{register ? "Sign in" : "Create an account"}</Link></p></div></main>;
+  const loginUrl = `/login?returnTo=${encodeURIComponent(returnTo)}`;
+  const registerUrl = `/register?returnTo=${encodeURIComponent(returnTo)}`;
+  return <main className="auth-page page-shell"><div className="auth-panel"><Link className="back-link" to="/"><ArrowLeft size={15} /> Back to website</Link><Eyebrow>CLIENT PORTAL</Eyebrow><h1>{register ? "Create your account." : "Welcome back."}</h1><p>{register ? "Create an account to keep project updates and proposals in one place. Email verification is required." : returnTo.startsWith("/book") ? "Sign in or create an account to continue with your project inquiry." : "Sign in to view your projects, proposals, and updates."}</p><form onSubmit={submit} className="contact-form">{register && <label>Full name<input name="name" autoComplete="name" required minLength={2} /></label>}<label>Email address<input type="email" name="email" autoComplete="email" required /></label><label>Password<input type="password" name="password" autoComplete={register ? "new-password" : "current-password"} minLength={10} required /></label><button className="button button-primary button-full">{register ? "Create account" : "Sign in"} <ArrowRight size={15} /></button></form>{status && <p className="form-status" role="status">{status}</p>}{!register && <p className="auth-switch"><Link to="/forgot-password">Forgot your password?</Link></p>}{register && <p className="auth-switch"><Link to={`/verify-email?returnTo=${encodeURIComponent(returnTo)}`}>Resend verification email</Link></p>}<p className="auth-switch">{register ? "Already have an account?" : "New to the client portal?"} <Link to={register ? loginUrl : registerUrl}>{register ? "Sign in" : "Create an account"}</Link></p></div></main>;
 }
 function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const returnTo = safeReturnTo(searchParams.get("returnTo"));
   const [status, setStatus] = useState(token ? "Verifying your email…" : "");
   const [error, setError] = useState("");
   useEffect(() => {
@@ -248,10 +318,10 @@ function VerifyEmailPage() {
   const resend = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setError(""); setStatus("Sending…");
     const email = new FormData(event.currentTarget).get("email");
-    try { const result = await apiRequest<{ message: string }>("/api/auth/resend-verification", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); setStatus(result.message); }
+    try { const result = await apiRequest<{ message: string }>("/api/auth/resend-verification", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, returnTo }) }); setStatus(result.message); }
     catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to send a verification email."); setStatus(""); }
   };
-  return <main className="auth-page page-shell"><div className="auth-panel"><Eyebrow>EMAIL VERIFICATION</Eyebrow><h1>Verify your email.</h1><p>Verify the email address on your account to access the client portal.</p>{!token && <form onSubmit={resend} className="contact-form"><label>Email address<input type="email" name="email" required /></label><button className="button button-primary button-full">Send verification link</button></form>}{status && <p className="form-status" role="status">{status}</p>}{error && <p className="form-error" role="alert">{error}</p>}<Link className="text-link" to="/login">Go to sign in <ArrowRight size={14} /></Link></div></main>;
+  return <main className="auth-page page-shell"><div className="auth-panel"><Eyebrow>EMAIL VERIFICATION</Eyebrow><h1>Verify your email.</h1><p>Verify the email address on your account to access the client portal.</p>{!token && <form onSubmit={resend} className="contact-form"><label>Email address<input type="email" name="email" required /></label><button className="button button-primary button-full">Send verification link</button></form>}{status && <p className="form-status" role="status">{status}</p>}{error && <p className="form-error" role="alert">{error}</p>}{status.startsWith("Email verified.") && <Link className="button button-primary button-full" to={returnTo}>Continue <ArrowRight size={14} /></Link>}<Link className="text-link" to={`/login?returnTo=${encodeURIComponent(returnTo)}`}>Go to sign in <ArrowRight size={14} /></Link></div></main>;
 }
 function ForgotPasswordPage() {
   const [status, setStatus] = useState("");
@@ -431,7 +501,7 @@ export default function App() {
   const location = useLocation();
   const reduceMotion = useReducedMotion();
   useEffect(() => {
-    const privateRoute = /^\/(dashboard|admin|login|register|verify-email|forgot-password|reset-password|orders|downloads|checkout|cart)(\/|$)/.test(location.pathname);
+    const privateRoute = /^\/(dashboard|admin|login|register|verify-email|forgot-password|reset-password|orders|downloads|checkout|cart|book|booking-success|privacy|terms|service-agreement|product-license|payment-policy|refund-policy)(\/|$)/.test(location.pathname);
     const titleForPath = location.pathname === "/" ? "Abhishek Sharma | Web Developer & Software Engineer"
       : location.pathname === "/about" ? "About Abhishek Sharma | Web Developer & Software Engineer"
       : location.pathname.startsWith("/projects/") ? `${projects.find((item) => item.slug === location.pathname.split("/").pop())?.title ?? "Project"} — Abhishek Sharma`
@@ -443,26 +513,41 @@ export default function App() {
       : `${location.pathname.slice(1).replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())} — Abhishek Sharma`;
     document.title = titleForPath;
     const descriptionForPath = location.pathname === "/"
-      ? "Meet Abhishek Sharma, a web developer focused on modern websites, React applications, full-stack development, and digital products."
+      ? homeDescription
       : location.pathname === "/about"
-        ? "I'm Abhishek Sharma, a web developer passionate about building modern, user-friendly websites and software applications."
-        : "Abhishek Sharma builds thoughtful websites, full-stack applications, and digital products.";
-    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]') ?? document.head.appendChild(Object.assign(document.createElement("meta"), { name: "description" }));
+        ? "Learn about Abhishek Sharma, a web developer and software engineer focused on building useful, accessible websites and full-stack applications."
+        : location.pathname === "/projects"
+          ? "Explore web development and software project concepts in Abhishek Sharma's developer portfolio, including React, full-stack, and API work."
+          : location.pathname === "/services"
+            ? "Explore website, React, full-stack, backend API, and software development services from Abhishek Sharma."
+            : location.pathname === "/products"
+              ? "Browse digital product concepts and developer resources from Abhishek Sharma."
+              : location.pathname === "/contact"
+                ? "Contact Abhishek Sharma to discuss a website, React application, API, or full-stack software project."
+                : privateRoute ? "Account and inquiry information for Abhishek Sharma's website." : homeDescription;
+    const pageKeywords = location.pathname === "/"
+      ? defaultKeywords + ", software engineer, Dehradun web developer, India software developer"
+      : location.pathname === "/about"
+        ? "About Abhishek Sharma, Abhishek Sharma developer, web developer, software engineer, React developer"
+        : location.pathname === "/projects"
+          ? "Abhishek Sharma projects, developer portfolio, React projects, web development portfolio, full-stack projects"
+          : location.pathname === "/services"
+            ? "Abhishek Sharma services, website development, React development, full-stack development, API development"
+            : location.pathname === "/products"
+              ? "Abhishek Sharma digital products, developer resources, software tools"
+              : defaultKeywords;
+    const description = ensureMeta('meta[name="description"]', { name: "description" });
     description.content = privateRoute ? "Private account area." : descriptionForPath;
-    const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]') ?? document.head.appendChild(Object.assign(document.createElement("meta"), { name: "robots" }));
+    ensureMeta('meta[name="keywords"]', { name: "keywords" }).content = pageKeywords;
+    const robots = ensureMeta('meta[name="robots"]', { name: "robots" });
     robots.content = privateRoute ? "noindex, nofollow" : "index, follow";
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]') ?? document.head.appendChild(Object.assign(document.createElement("link"), { rel: "canonical" }));
-    canonical.href = `https://abhisheksharma.tech${location.pathname}`;
-    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
-    if (ogTitle) ogTitle.content = titleForPath;
-    const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
-    if (ogDescription) ogDescription.content = privateRoute ? "Private account area." : descriptionForPath;
-    const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
-    if (ogUrl) ogUrl.content = canonical.href;
-    const twitterTitle = document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]');
-    if (twitterTitle) twitterTitle.content = titleForPath;
-    const twitterDescription = document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]');
-    if (twitterDescription) twitterDescription.content = privateRoute ? "Private account area." : descriptionForPath;
+    canonical.href = `${canonicalOrigin}${location.pathname}`;
+    ensureMeta('meta[property="og:title"]', { property: "og:title" }).content = titleForPath;
+    ensureMeta('meta[property="og:description"]', { property: "og:description" }).content = privateRoute ? "Private account area." : descriptionForPath;
+    ensureMeta('meta[property="og:url"]', { property: "og:url" }).content = canonical.href;
+    ensureMeta('meta[name="twitter:title"]', { name: "twitter:title" }).content = titleForPath;
+    ensureMeta('meta[name="twitter:description"]', { name: "twitter:description" }).content = privateRoute ? "Private account area." : descriptionForPath;
   }, [location.pathname]);
   return <div className="app"><a className="skip-link" href="#main-content">Skip to main content</a><Header /><AnimatePresence mode="wait"><motion.div id="main-content" tabIndex={-1} key={location.pathname} initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}><Routes>
     <Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/projects" element={<ProjectsPage />} /><Route path="/projects/:slug" element={<ProjectDetail />} />

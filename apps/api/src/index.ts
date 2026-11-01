@@ -10,6 +10,7 @@ import { z } from "zod";
 
 const app = express();
 const prisma = new PrismaClient();
+if (process.env.VERCEL) app.set("trust proxy", 1);
 if (!process.env.DATABASE_URL) {
   console.error("DATABASE_URL is not configured; database-backed API routes will be unavailable.");
 }
@@ -56,7 +57,11 @@ const authSchema = z.object({
   email: emailSchema,
   password: z.string().min(10).max(128),
 });
-const registerSchema = authSchema.extend({ name: z.string().trim().min(2).max(120) });
+const returnToSchema = z.string().max(2048).regex(/^\/(?!\/)[^\\\r\n]*$/).optional().default("/dashboard");
+const registerSchema = authSchema.extend({
+  name: z.string().trim().min(2).max(120),
+  returnTo: returnToSchema,
+});
 const proposalSchema = z.object({
   scope: z.string().trim().min(20).max(12000),
   exclusions: z.string().trim().max(6000).optional().default(""),
@@ -281,10 +286,11 @@ app.get("/api/faqs", asyncRoute(async (_req, res) => {
   res.json(await prisma.fAQ.findMany({ where: { published: true }, orderBy: { sortOrder: "asc" }, select: { id: true, question: true, answer: true } }));
 }));
 
-app.post("/api/bookings", inquiryLimiter, asyncRoute(async (req, res) => {
+app.post("/api/bookings", inquiryLimiter, requireClientOrAdmin, asyncRoute(async (req, res) => {
   const input = parseBody(bookingSchema, req, res);
   if (!input) return;
   try {
+    const identity = (req as AuthedRequest).identity;
     const serviceSlug = input.service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const service = await prisma.service.findFirst({ where: { OR: [{ slug: serviceSlug }, { title: input.service }], status: "PUBLISHED", available: true } });
     const reference = `ASH-${randomUUID().slice(0, 8).toUpperCase()}`;
@@ -293,8 +299,9 @@ app.post("/api/bookings", inquiryLimiter, asyncRoute(async (req, res) => {
         reference,
         serviceId: service?.id,
         serviceName: input.service,
+        clientId: identity.id,
         name: input.name,
-        email: input.email,
+        email: identity.email,
         phone: input.phone || null,
         contactMethod: input.contact,
         title: input.title,
@@ -348,7 +355,7 @@ app.post("/api/auth/register", authLimiter, asyncRoute(async (req, res) => {
       select: { id: true, email: true, role: true },
     });
     const token = await createAccountToken(user.id, "EMAIL_VERIFICATION");
-    const verificationUrl = `${appBaseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+    const verificationUrl = `${appBaseUrl}/verify-email?token=${encodeURIComponent(token)}&returnTo=${encodeURIComponent(input.returnTo)}`;
     try {
       await sendEmail(user.email, "Verify your email address", `<p>Complete account registration by <a href="${verificationUrl}">verifying your email address</a>.</p><p>This link expires in 24 hours.</p>`);
     } catch (error) {
@@ -375,14 +382,14 @@ app.post("/api/auth/verify-email", authLimiter, asyncRoute(async (req, res) => {
   res.json({ user: { id: record.user.id, email: record.user.email, role: record.user.role } });
 }));
 app.post("/api/auth/resend-verification", authLimiter, asyncRoute(async (req, res) => {
-  const body = z.object({ email: emailSchema }).safeParse(req.body);
+  const body = z.object({ email: emailSchema, returnTo: returnToSchema }).safeParse(req.body);
   if (!body.success) return safeError(res, 400, "Enter a valid email address.");
   if (!emailConfigured()) return safeError(res, 503, "Email delivery is not configured.");
   const user = await prisma.user.findUnique({ where: { email: body.data.email } });
   if (user && !user.emailVerifiedAt) {
     await prisma.accountToken.deleteMany({ where: { userId: user.id, purpose: "EMAIL_VERIFICATION" } });
     const token = await createAccountToken(user.id, "EMAIL_VERIFICATION");
-    const verificationUrl = `${appBaseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+    const verificationUrl = `${appBaseUrl}/verify-email?token=${encodeURIComponent(token)}&returnTo=${encodeURIComponent(body.data.returnTo)}`;
     try {
       await sendEmail(user.email, "Verify your email address", `<p><a href="${verificationUrl}">Verify your email address</a> to finish setting up your account.</p><p>This link expires in 24 hours.</p>`);
     } catch (error) {

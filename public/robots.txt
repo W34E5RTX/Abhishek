@@ -5,4 +5,4 @@ Disallow: /admin/
 Disallow: /login
 Disallow: /register
 
-Sitemap: https://abhisheksharma.tech/sitemap.xml
+Sitemap: https://abhishek-virid-beta.vercel.app/sitemap.xml

@@ -51,7 +51,7 @@ Start the Vite frontend and API together:
 npm run dev
 ```
 
-The frontend runs at `http://localhost:5173`; Vite proxies `/api` to `http://localhost:4000`. The API reads `API_PORT` and `APP_BASE_URL` from `.env`. The booking and contact form submit to the API and persist only when the database is configured and synchronized.
+The frontend runs at `http://localhost:5173`; Vite proxies `/api` to `http://localhost:4000`. The API reads `API_PORT` and `APP_BASE_URL` from `.env`. Booking requires a signed-in client account; sign-in, account creation, and email verification return the user to the original booking page. Contact messages remain available without signing in. Both forms persist only when the database is configured and synchronized.
 
 ## Environment variables
 
@@ -76,7 +76,7 @@ The table and index definitions are in `prisma/schema.prisma`. Run `npm run db:p
 Implemented route groups:
 
 - Public: `GET /api/health`, `/api/projects`, `/api/projects/:slug`, `/api/services`, `/api/services/:slug`, `/api/products`, `/api/products/:slug`, `/api/site-settings/public`
-- Inquiries: `POST /api/bookings`, `POST /api/contact`
+- Inquiries: authenticated `POST /api/bookings`, public `POST /api/contact`
 - Authentication: `POST /api/auth/register`, `/api/auth/verify-email`, `/api/auth/resend-verification`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/forgot-password`, `/api/auth/reset-password`, `GET /api/auth/me`
 - Client: dashboard/projects/project detail/proposals/proposal accept or reject/orders
 - Admin: dashboard, paginated bookings, validated booking status change
@@ -88,6 +88,7 @@ Unimplemented routes must not be inferred from the schema or the original produc
 - Passwords are bcrypt-hashed; raw session tokens are random and only their SHA-256 hashes are stored.
 - Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production. Do not move authentication tokens to local storage.
 - Role assignment is never accepted from public registration. The initial admin is created only from explicit environment configuration.
+- Project bookings require a verified account and are associated with that account; the API rejects unauthenticated booking submissions.
 - Booking status changes follow an explicit server-side transition map. Submitting an inquiry does not confirm a project or collect payment.
 - Client project/proposal/order queries are scoped to the authenticated user. Admin endpoints check the server-side role.
 - Public writes are size-limited, validated with Zod, rate-limited, and checked against the configured request origin.
@@ -112,7 +113,7 @@ Deploy the repository root to Vercel. `vercel.json` configures the Vite build an
 
 Connect `abhisheksharma.tech` after confirming domain ownership and DNS. Configure the production `APP_BASE_URL` to the exact HTTPS origin. Configure production database credentials, HTTPS, backups, provider webhook URLs, transactional email, and private object storage before enabling those features.
 
-The public UI is a client-rendered Vite SPA. Its initial HTML includes the site title and description, Open Graph and Twitter sharing metadata, and Person structured data. Route-specific titles, descriptions, and canonical URLs are updated after JavaScript executes; this does not guarantee that every crawler will index public pages well. For best discoverability, add prerendering or server-side rendering for public routes and generate a data-driven sitemap when published projects/products are backed by the database. `public/sitemap.xml` lists the primary public routes, and `public/robots.txt` points crawlers to it. Private routes are `noindex` and excluded from the sitemap; server authorization remains mandatory regardless of robots directives.
+The public UI is a client-rendered Vite SPA. Its initial HTML includes the site title and description, author and keyword metadata, Open Graph and Twitter sharing metadata, and Person structured data. Route-specific titles, descriptions, keywords, and canonical URLs are updated after JavaScript executes; this does not guarantee that every crawler will index public pages well. `public/sitemap.xml` lists the primary public routes, and `public/robots.txt` points crawlers to it. Private, inquiry, and policy routes are `noindex` and excluded from the sitemap; server authorization remains mandatory regardless of robots directives. Search engines do not rely on the keywords meta tag for ranking; accurate page content, crawlable rendering, and Search Console submission remain important.
 
 Policy pages are editable starting templates, not legal advice. Have the actual privacy, service, product license, refund, payment, and terms policies reviewed for the business and applicable laws before publishing.
 
